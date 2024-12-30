@@ -3,15 +3,29 @@ import { useQuery } from '@tanstack/vue-query'
 import { ref } from 'vue'
 import { useEntityHandler } from '@/composables/useEntityHandler'
 
-const fetchTodos = (params: Record<string, unknown>) => {
-    const searchParams = new URLSearchParams(params as Record<string, string>)
-    return fetch(`/api/todos?${searchParams}`).then((res) => res.json())
-}
-
 export interface Entity {
     id: number
     name: string
     value: number
+}
+
+const fetchTodos = (
+    params: {
+        sortField?: string
+        sortOrder?: 'asc' | 'desc'
+        page?: number
+        perPage?: number
+    } & Partial<Entity>,
+) => {
+    const searchParams = new URLSearchParams()
+
+    Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+            searchParams.append(key, String(value))
+        }
+    })
+
+    return fetch(`/api/todos?${searchParams}`).then((res) => res.json())
 }
 
 export const useTodoStore = defineStore('todo', () => {
